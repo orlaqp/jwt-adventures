@@ -1,8 +1,13 @@
+using System;
+using api.Configuration;
+using api.core.auth.jwt;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
+using Newtonsoft.Json;
 
 namespace api
 {
@@ -19,6 +24,13 @@ namespace api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.Configure<JwtOptions>(Configuration.GetSection("Jwt"));
+
+            var jwtOptions = new JwtValidationOptions();
+            Configuration.GetSection("JwtValidation").Bind(jwtOptions);
+            
+            services.AddJwtBearerAuthentication(jwtOptions);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -26,6 +38,7 @@ namespace api
         {
             if (env.IsDevelopment())
             {
+                IdentityModelEventSource.ShowPII = true;
                 app.UseDeveloperExceptionPage();
             }
 

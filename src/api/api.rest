@@ -1,0 +1,9 @@
+// Configuration endpoints
+GET https://localhost:5001/configuration HTTP/1.1
+
+###
+GET https://localhost:5001/configuration/keys HTTP/1.1
+
+###
+// authorization end points
+GET https://localhost:5001/authorization/ HTTP/1.1

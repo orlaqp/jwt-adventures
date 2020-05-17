@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "src\api\api.csproj", "{652E33CB-1096-43EB-96B9-B12B1F158352}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "api\api.csproj", "{652E33CB-1096-43EB-96B9-B12B1F158352}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.core.auth", "src\api.core.auth\api.core.auth.csproj", "{744DB287-4078-41C3-9B56-C527F8519DA0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.core.auth", "api.core.auth\api.core.auth.csproj", "{744DB287-4078-41C3-9B56-C527F8519DA0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
