@@ -10,8 +10,14 @@ GET {{baseUrl}}/configuration/keys HTTP/1.1
 # @name token
 GET {{baseUrl}}/authorization HTTP/1.1
 
-### Decrypt token
-POST {{baseUrl}}/authorization HTTP/1.1
+### Validate token
+POST {{baseUrl}}/authorization/validate HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+token={{token.response.body.$.token}}
+
+### Token as JSON
+POST {{baseUrl}}/authorization/asJson HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
 
 token={{token.response.body.$.token}}

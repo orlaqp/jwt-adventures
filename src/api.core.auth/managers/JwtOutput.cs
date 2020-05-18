@@ -1,4 +1,4 @@
-namespace api.core.auth.jwt
+namespace api.core.auth.managers
 {
     public class JwtOutput
     {

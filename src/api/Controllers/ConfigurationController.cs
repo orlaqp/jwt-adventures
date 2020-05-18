@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using api.Configuration;
+using api.core.auth.managers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -30,14 +31,14 @@ namespace api.Controllers
             var logging = new Logging();
             config.GetSection("Logging").Bind(logging);
 
-            var jwt = new JwtOptions();
-            config.GetSection("Jwt").Bind(jwt);
+            var asymmetricOptions = new AsymmetricOptions();
+            config.GetSection("Jwt:Asymmetric").Bind(asymmetricOptions);
 
             var configKeys = new Dictionary<string, string>();
 
             configKeys["logging"] = config["Logging"];
             configKeys["loggingLevel"] = logging.Level;
-            configKeys["jwt"] = JsonConvert.SerializeObject(jwt);
+            configKeys["asymmetricOptions"] = JsonConvert.SerializeObject(asymmetricOptions);
 
             return configKeys;
         }

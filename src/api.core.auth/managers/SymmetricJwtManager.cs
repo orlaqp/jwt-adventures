@@ -60,7 +60,10 @@ namespace api.core.auth.managers
 
         public string GetTokenAsJson(string token)
         {
-            return ValidateToken(token).ToString();
+            var handler = new JwtSecurityTokenHandler();
+            var securityToken = handler.ReadJwtToken(token);
+
+            return securityToken.ToString();
         }
 
         private SigningCredentials GetSigningCredentials()

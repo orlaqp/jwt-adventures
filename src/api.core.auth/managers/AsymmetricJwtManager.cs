@@ -3,24 +3,23 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using api.core.auth.jwt;
+using Microsoft.Extensions.Options;
 
 namespace api.core.auth.managers
 {
     public class AsymmetricJwtManager : IJwtManager
     {
-        private readonly string key;
-        private readonly byte[] base64Key;
+        private readonly byte[] base64PrivateKey;
+        private readonly byte[] base64PublicKey;
 
-        public JwtManager(string key)
+        public AsymmetricJwtManager(IOptions<AsymmetricOptions> options)
         {
-            this.key = key;
-            this.base64Key = Encoding.UTF8.GetBytes(key);
+            this.base64PrivateKey = Convert.FromBase64String(options.Value.PrivateKey);
+            this.base64PublicKey = Convert.FromBase64String(options.Value.PublicKey);
         }
 
-        public JwtOutput GenerateToken(string key)
+        public JwtOutput GenerateToken(IEnumerable<Claim> claims)
         {
             var jwtDate = DateTime.Now;
 
@@ -36,7 +35,7 @@ namespace api.core.auth.managers
                 // Provide a cryptographic key used to sign the token.
                 // When dealing with symmetric keys then this must be
                 // the same key used to validate the token.
-                signingCredentials: GetSigningCredentials(key)
+                signingCredentials: GetSigningCredentials()
             );
 
             // generate the actual token as a string
@@ -47,59 +46,41 @@ namespace api.core.auth.managers
             };
         }
 
-        public string DecryptToken(object key, string token)
+        public ClaimsPrincipal ValidateToken(string token)
         {
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.ReadJwtToken(token);
             // securityToken.
             SecurityToken validatedToken;
-            var principal = handler.ValidateToken(token, new TokenValidationParameters
+            return handler.ValidateToken(token, new TokenValidationParameters
             {
                 RequireExpirationTime = true,
                 ValidateAudience = false,
                 ValidateIssuer = false,
-                IssuerSigningKey = new SymmetricSecurityKey(base64Key)
+                IssuerSigningKey = new SymmetricSecurityKey(base64PublicKey)
             }, out validatedToken);
-
-            return securityToken.ToString();
-        }
-
-        private SigningCredentials GetSigningCredentials(bool symmetric)
-        {
-
-            if (symmetric)
-            {
-                return new SigningCredentials(
-                    key: new SymmetricSecurityKey(base64Key),
-                    algorithm: SecurityAlgorithms.HmacSha256
-                );
-            }
-            else
-            {
-                var rsa = RSA.Create();
-                rsa.ImportSubjectPublicKeyInfo(
-                    source: base64Key,
-                    bytesRead: out _
-                );
-
-                var rsaKey = new RsaSecurityKey(rsa);
-            }
-
-        }
-
-        public JwtOutput GenerateToken(IEnumerable<Claim> claims)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ClaimsPrincipal ValidateToken(string token)
-        {
-            throw new NotImplementedException();
         }
 
         public string GetTokenAsJson(string token)
         {
-            throw new NotImplementedException();
+            var principal = ValidateToken(token);
+
+            return principal.ToString();
+        }
+        
+        private SigningCredentials GetSigningCredentials()
+        {
+            var rsa = RSA.Create();
+            
+            rsa.ImportSubjectPublicKeyInfo(
+                source: base64PublicKey,
+                bytesRead: out _
+            );
+
+            return new SigningCredentials(
+                key: new RsaSecurityKey(rsa),
+                algorithm: SecurityAlgorithms.RsaSsaPssSha256
+            );
         }
     }
 }
