@@ -1,30 +1,18 @@
-using System.Security.Claims;
-using System.Collections.Generic;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using api.Configuration;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using api.core.auth.jwt;
+using api.core.auth.managers;
 
 namespace api.Controllers
 {
     [Route("[controller]")]
     public class AuthorizationController : ControllerBase
     {
-        private readonly JwtOptions jwtOptions;
-        private readonly JwtManager jwtManager;
+        private readonly IJwtManager jwtManager;
 
-        public AuthorizationController(
-            JwtManager jwtManager,
-            IOptions<JwtOptions> jwtConfig
-        )
+        public AuthorizationController(IJwtManager jwtManager)
         {
-            this.jwtOptions = jwtConfig.Value;
             this.jwtManager = jwtManager;
         }
 

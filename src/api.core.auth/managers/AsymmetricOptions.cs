@@ -1,6 +1,6 @@
-namespace api.Configuration
+namespace api.core.auth.managers
 {
-    public class Asymmetric
+    public class AsymmetricOptions
     {
         public string PrivateKey { get; set; }
         public string PublicKey { get; set; }

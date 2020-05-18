@@ -1,6 +1,7 @@
 using System;
 using api.Configuration;
 using api.core.auth.jwt;
+using api.core.auth.managers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -26,15 +27,19 @@ namespace api
         {
             services.AddControllers();
 
-            services.Configure<JwtOptions>(Configuration.GetSection("Jwt"));
-            services.AddSingleton<JwtManager>(svcs => {
-                var options = svcs.GetService<IOptions<JwtOptions>>();
-                return new JwtManager(options.Value.Symmetric.Key);
-            });
+            // symmetric
+            services.Configure<SymmetricOptions>(Configuration.GetSection("Jwt:Symmetric"));
+            services.AddSingleton<IJwtManager, SymmetricJwtManager>();
+            
+            // asymmetric
+            // services.Configure<AsymmetricOptions>(Configuration.GetSection("Jwt:Asymmetric"));
+            // services.AddSingleton<IJwtManager, AsymmetricJwtManager>();
 
+            // jwt validation options, we do not need different implementation for this one
             var jwtOptions = new JwtValidationOptions();
             Configuration.GetSection("JwtValidation").Bind(jwtOptions);
-            
+
+            // setup jwt beare authentication service            
             services.AddJwtBearerAuthentication(jwtOptions);
         }
 
