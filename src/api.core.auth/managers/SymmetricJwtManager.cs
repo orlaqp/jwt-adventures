@@ -11,12 +11,12 @@ namespace api.core.auth.managers
 {
     public class SymmetricJwtManager : IJwtManager
     {
-        private readonly byte[] base64Key;
+        private readonly byte[] keyBytes;
         private SigningCredentials signingCredentials;
 
         public SymmetricJwtManager(IOptions<SymmetricOptions> options)
         {
-            this.base64Key = Encoding.UTF8.GetBytes(options.Value.Key);
+            this.keyBytes = Encoding.UTF8.GetBytes(options.Value.Key);
         }
 
         public JwtOutput GenerateToken(IEnumerable<Claim> claims)
@@ -54,7 +54,7 @@ namespace api.core.auth.managers
                 RequireExpirationTime = true,
                 ValidateAudience = false,
                 ValidateIssuer = false,
-                IssuerSigningKey = new SymmetricSecurityKey(base64Key)
+                IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
             }, out validatedToken);
         }
 
@@ -71,7 +71,7 @@ namespace api.core.auth.managers
             if (signingCredentials == null)
             {
                 this.signingCredentials = new SigningCredentials(
-                    key: new SymmetricSecurityKey(base64Key),
+                    key: new SymmetricSecurityKey(keyBytes),
                     algorithm: SecurityAlgorithms.HmacSha256
                 );
             }

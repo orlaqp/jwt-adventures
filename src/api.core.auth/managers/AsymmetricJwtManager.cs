@@ -12,11 +12,13 @@ namespace api.core.auth.managers
     {
         private readonly byte[] base64PrivateKey;
         private readonly byte[] base64PublicKey;
+        private readonly RSA rsa;
 
         public AsymmetricJwtManager(IOptions<AsymmetricOptions> options)
         {
             this.base64PrivateKey = Convert.FromBase64String(options.Value.PrivateKey);
             this.base64PublicKey = Convert.FromBase64String(options.Value.PublicKey);
+            this.rsa = GetRSAKey();
         }
 
         public JwtOutput GenerateToken(IEnumerable<Claim> claims)
@@ -57,30 +59,35 @@ namespace api.core.auth.managers
                 RequireExpirationTime = true,
                 ValidateAudience = false,
                 ValidateIssuer = false,
-                IssuerSigningKey = new SymmetricSecurityKey(base64PublicKey)
+                IssuerSigningKey = new RsaSecurityKey(rsa)
             }, out validatedToken);
         }
 
         public string GetTokenAsJson(string token)
         {
-            var principal = ValidateToken(token);
+            var handler = new JwtSecurityTokenHandler();
+            var securityToken = handler.ReadJwtToken(token);
 
-            return principal.ToString();
+            return securityToken.ToString();
         }
-        
+
         private SigningCredentials GetSigningCredentials()
         {
-            var rsa = RSA.Create();
-            
-            rsa.ImportSubjectPublicKeyInfo(
-                source: base64PublicKey,
-                bytesRead: out _
-            );
-
             return new SigningCredentials(
                 key: new RsaSecurityKey(rsa),
                 algorithm: SecurityAlgorithms.RsaSsaPssSha256
             );
+        }
+
+        private RSA GetRSAKey() {
+            var rsa = RSA.Create();
+            
+            rsa.ImportRSAPrivateKey(
+                source: base64PrivateKey,
+                bytesRead: out _
+            );
+            
+            return rsa;
         }
     }
 }
