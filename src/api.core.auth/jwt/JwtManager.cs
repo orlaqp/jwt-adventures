@@ -19,16 +19,12 @@ namespace api.core.auth.jwt
         }
 
         public JwtOutput GenerateToken(string key) {
-            var signingCredentials = new SigningCredentials(
-                key: new SymmetricSecurityKey(base64Key),
-                algorithm: SecurityAlgorithms.HmacSha256
-            );
-
             var jwtDate = DateTime.Now;
 
             var jwt = new JwtSecurityToken(
                 audience: "audience",
                 issuer: "issuer",
+                expires: jwtDate.AddDays(1),
                 // claims
                 claims: new List<Claim> {
                     new Claim(ClaimTypes.NameIdentifier, "orlando"),
@@ -37,7 +33,7 @@ namespace api.core.auth.jwt
                 // Provide a cryptographic key used to sign the token.
                 // When dealing with symmetric keys then this must be
                 // the same key used to validate the token.
-                signingCredentials: signingCredentials 
+                signingCredentials: GetSigningCredentials(key) 
             );
 
             // generate the actual token as a string
@@ -50,7 +46,24 @@ namespace api.core.auth.jwt
         public string DecryptToken(object key, string token)
         {
             var handler = new JwtSecurityTokenHandler();
-            return handler.ReadJwtToken(token).ToString();
+            var securityToken = handler.ReadJwtToken(token);
+            // securityToken.
+            SecurityToken validatedToken;
+            var principal = handler.ValidateToken(token, new TokenValidationParameters {
+                RequireExpirationTime = true,
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                IssuerSigningKey = new SymmetricSecurityKey(base64Key)
+            }, out validatedToken);
+            
+            return securityToken.ToString();
+        }
+
+        private SigningCredentials GetSigningCredentials(string key) {
+            return new SigningCredentials(
+                key: new SymmetricSecurityKey(base64Key),
+                algorithm: SecurityAlgorithms.HmacSha256
+            );
         }
     }
 }
