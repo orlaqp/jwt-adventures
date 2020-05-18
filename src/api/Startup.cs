@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Newtonsoft.Json;
 
@@ -26,6 +27,10 @@ namespace api
             services.AddControllers();
 
             services.Configure<JwtOptions>(Configuration.GetSection("Jwt"));
+            services.AddSingleton<JwtManager>(svcs => {
+                var options = svcs.GetService<IOptions<JwtOptions>>();
+                return new JwtManager(options.Value.Symmetric.Key);
+            });
 
             var jwtOptions = new JwtValidationOptions();
             Configuration.GetSection("JwtValidation").Bind(jwtOptions);

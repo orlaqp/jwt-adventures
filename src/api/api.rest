@@ -1,9 +1,17 @@
-// Configuration endpoints
-GET https://localhost:5001/configuration HTTP/1.1
+@baseUrl = https://localhost:5001
 
-###
-GET https://localhost:5001/configuration/keys HTTP/1.1
+// Get configuration setup
+GET {{baseUrl}}/configuration HTTP/1.1
 
-###
-// authorization end points
-GET https://localhost:5001/authorization/ HTTP/1.1
+### Get configuration keys
+GET {{baseUrl}}/configuration/keys HTTP/1.1
+
+### Generate JWT Token endpoint
+# @name token
+GET {{baseUrl}}/authorization HTTP/1.1
+
+### Decrypt token
+POST {{baseUrl}}/authorization HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+token={{token.response.body.$.token}}
