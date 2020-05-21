@@ -1,7 +1,4 @@
-using api.Configuration;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using api.core.auth.jwt;
 using api.core.auth.managers;
 using System.Collections.Generic;
 using System.Security.Claims;
